@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Navbar from "../components/Navbar";
+
 
 function IconStethoscope() {
   return (
@@ -33,7 +33,7 @@ function IconPill() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#F2F2F2] text-[#1A1A1A]">
-      <Navbar />
+    
 
       {/* Feature cards */}
       <section className="px-6 py-10 md:px-10">
