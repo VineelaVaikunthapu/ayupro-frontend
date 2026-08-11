@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 // TODO: replace with a real fetch from the backend (GET /api/labs?lat=&lng=),
@@ -7,6 +8,7 @@ import { useEffect, useState } from "react";
 // Coordinates below are illustrative sample data.
 const labs = [
   {
+    slug: "quickpath-diagnostics",
     name: "QuickPath Diagnostics",
     address: "4210 Elm Street, Suite 100",
     lat: 32.8329,
@@ -16,6 +18,7 @@ const labs = [
     accreditation: "CAP accredited",
   },
   {
+    slug: "riverside-lab-services",
     name: "Riverside Lab Services",
     address: "118 Riverside Drive",
     lat: 32.7973,
@@ -25,6 +28,7 @@ const labs = [
     accreditation: "ISO 15189 accredited",
   },
   {
+    slug: "lakeview-pathology-lab",
     name: "Lakeview Pathology Lab",
     address: "56 Lakeview Ave",
     lat: 32.8801,
@@ -34,6 +38,7 @@ const labs = [
     accreditation: "CAP accredited",
   },
   {
+    slug: "cedar-blvd-testing-center",
     name: "Cedar Blvd Testing Center",
     address: "980 Cedar Blvd",
     lat: 32.7502,
@@ -124,9 +129,10 @@ export default function LabsPage() {
               ? distanceMiles(coords.lat, coords.lng, lab.lat, lab.lng)
               : null;
             return (
-              <div
+              <Link
                 key={lab.name}
-                className="rounded-xl border border-[#1F5D3A]/10 bg-[#EEF6EF] p-5"
+                href={`/labs/${lab.slug}`}
+                className="block rounded-xl border border-[#1F5D3A]/10 bg-[#EEF6EF] p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -156,7 +162,7 @@ export default function LabsPage() {
                     </span>
                   )}
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
