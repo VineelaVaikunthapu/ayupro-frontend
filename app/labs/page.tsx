@@ -1,52 +1,51 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
-// TODO: replace with a real fetch from the backend (GET /api/hospitals?lat=&lng=),
-// backed by healthcare_facilities + hospitals + facility_addresses tables,
-// once the API exists. Coordinates below are illustrative sample data.
-const hospitals = [
+// TODO: replace with a real fetch from the backend (GET /api/labs?lat=&lng=),
+// backed by labs + lab_tests + facility_addresses tables, once the API exists.
+// Coordinates below are illustrative sample data.
+const labs = [
   {
-    slug: "northside-general-hospital",
-    name: "Northside General Hospital",
-    address: "4210 Elm Street",
+    name: "QuickPath Diagnostics",
+    address: "4210 Elm Street, Suite 100",
     lat: 32.8329,
     lng: -96.9622,
-    emergencyRoom: true,
-    bedCount: 220,
+    homeCollection: true,
+    onlineReports: true,
+    accreditation: "CAP accredited",
   },
   {
-    slug: "riverside-medical-center",
-    name: "Riverside Medical Center",
+    name: "Riverside Lab Services",
     address: "118 Riverside Drive",
     lat: 32.7973,
     lng: -96.9089,
-    emergencyRoom: true,
-    bedCount: 340,
+    homeCollection: false,
+    onlineReports: true,
+    accreditation: "ISO 15189 accredited",
   },
   {
-    slug: "lakeview-community-hospital",
-    name: "Lakeview Community Hospital",
+    name: "Lakeview Pathology Lab",
     address: "56 Lakeview Ave",
     lat: 32.8801,
     lng: -96.9497,
-    emergencyRoom: false,
-    bedCount: 90,
+    homeCollection: true,
+    onlineReports: false,
+    accreditation: "CAP accredited",
   },
   {
-    slug: "st-annes-hospital",
-    name: "St. Anne's Hospital",
+    name: "Cedar Blvd Testing Center",
     address: "980 Cedar Blvd",
     lat: 32.7502,
     lng: -97.0334,
-    emergencyRoom: true,
-    bedCount: 410,
+    homeCollection: true,
+    onlineReports: true,
+    accreditation: "NABL accredited",
   },
 ];
 
 function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
-  const R = 3958.8; // Earth radius in miles
+  const R = 3958.8;
   const toRad = (deg: number) => (deg * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
@@ -56,7 +55,7 @@ function distanceMiles(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export default function HospitalsPage() {
+export default function LabsPage() {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "granted" | "denied">("idle");
 
@@ -81,19 +80,19 @@ export default function HospitalsPage() {
   }, []);
 
   const sorted = coords
-    ? [...hospitals].sort(
+    ? [...labs].sort(
         (a, b) =>
           distanceMiles(coords.lat, coords.lng, a.lat, a.lng) -
           distanceMiles(coords.lat, coords.lng, b.lat, b.lng)
       )
-    : hospitals;
+    : labs;
 
   return (
     <div className="min-h-screen bg-[#F2F2F2] px-6 py-12">
       <div className="mx-auto w-full max-w-2xl">
-        <h1 className="text-[28px] font-semibold text-[#173F29]">Hospitals</h1>
+        <h1 className="text-[28px] font-semibold text-[#173F29]">Labs</h1>
         <p className="mt-2 text-[15px] text-[#5B5B5B]">
-          Find hospitals near you.
+          Find diagnostic labs near you.
         </p>
 
         {status !== "granted" && (
@@ -105,8 +104,8 @@ export default function HospitalsPage() {
               <div className="flex items-center justify-between gap-4">
                 <p className="text-[14px] text-[#1B2E6E]">
                   {status === "denied"
-                    ? "Location access wasn't available. Showing all hospitals instead."
-                    : "Share your location to see hospitals sorted by distance."}
+                    ? "Location access wasn't available. Showing all labs instead."
+                    : "Share your location to see labs sorted by distance."}
                 </p>
                 <button
                   onClick={requestLocation}
@@ -120,22 +119,24 @@ export default function HospitalsPage() {
         )}
 
         <div className="mt-6 space-y-3">
-          {sorted.map((h) => {
+          {sorted.map((lab) => {
             const miles = coords
-              ? distanceMiles(coords.lat, coords.lng, h.lat, h.lng)
+              ? distanceMiles(coords.lat, coords.lng, lab.lat, lab.lng)
               : null;
             return (
-              <Link
-                key={h.name}
-                href={`/hospitals/${h.slug}`}
-                className="block rounded-xl border border-[#1F5D3A]/10 bg-[#EEF6EF] p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              <div
+                key={lab.name}
+                className="rounded-xl border border-[#1F5D3A]/10 bg-[#EEF6EF] p-5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-[17px] font-semibold text-[#173F29]">
-                      {h.name}
+                      {lab.name}
                     </h2>
-                    <p className="mt-0.5 text-[14px] text-[#4A4A4A]">{h.address}</p>
+                    <p className="mt-0.5 text-[14px] text-[#4A4A4A]">{lab.address}</p>
+                    <p className="mt-0.5 text-[13px] text-[#8A8A8A]">
+                      {lab.accreditation}
+                    </p>
                   </div>
                   {miles !== null && (
                     <span className="shrink-0 rounded-full bg-white px-3 py-1 text-[13px] font-medium text-[#173F29]">
@@ -144,16 +145,18 @@ export default function HospitalsPage() {
                   )}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {h.emergencyRoom && (
-                    <span className="rounded-full bg-[#FCEBEB] px-2.5 py-1 text-[12px] font-medium text-[#791F1F]">
-                      Emergency room
+                  {lab.homeCollection && (
+                    <span className="rounded-full bg-white px-2.5 py-1 text-[12px] font-medium text-[#4A4A4A]">
+                      Home collection
                     </span>
                   )}
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[12px] font-medium text-[#4A4A4A]">
-                    {h.bedCount} beds
-                  </span>
+                  {lab.onlineReports && (
+                    <span className="rounded-full bg-[#EEF2FC] px-2.5 py-1 text-[12px] font-medium text-[#1B2E6E]">
+                      Online reports
+                    </span>
+                  )}
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
