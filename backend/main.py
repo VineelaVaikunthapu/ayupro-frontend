@@ -169,4 +169,18 @@ def symptom_check(payload: SymptomCheckRequest):
             detail="The AI model didn't return a valid structured response. Please try again.",
         )
 
+    # Defensive fix: occasionally the model echoes back the JSON *schema*
+    # instead of a filled-in answer (keys like "properties", "required",
+    # "title" instead of the real conditions/medications/treatments). If
+    # that happens, try to unwrap the real data from "properties" before
+    # giving up.
+    if "properties" in result and "conditions" not in result:
+        result = result["properties"]
+
+    if not any(k in result for k in ("conditions", "medications", "treatments")):
+        raise HTTPException(
+            status_code=502,
+            detail="The AI model didn't return a valid structured response. Please try again.",
+        )
+
     return result
