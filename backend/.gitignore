@@ -4,3 +4,4 @@ venv/
 models/
 chroma_db/
 backend/data/
+backend/data/
