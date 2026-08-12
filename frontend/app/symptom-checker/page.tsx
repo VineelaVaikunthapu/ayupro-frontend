@@ -30,15 +30,44 @@ export default function SymptomCheckerPage() {
     }
 
     setSubmitting(true);
-    // TODO: replace with a real call to POST /api/symptom-check once the
-    // FastAPI backend and LLM pipeline are live. For now we pass the intake
-    // details through to the results page via query params.
-    const params = new URLSearchParams({
-      age: String(ageNum),
-      gender,
-      symptoms: symptoms.trim(),
-    });
-    router.push(`/results?${params.toString()}`);
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:8000/api/symptom-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          age: ageNum,
+          gender,
+          symptoms: symptoms.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.detail || "Something went wrong. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      // The response can be large (arrays of conditions/medications/
+      // treatments), so we pass it to the results page via sessionStorage
+      // rather than cramming it into the URL as query params.
+      sessionStorage.setItem(
+        "ayupro_symptom_result",
+        JSON.stringify({
+          age: ageNum,
+          gender,
+          symptoms: symptoms.trim(),
+          result: data,
+        })
+      );
+      router.push("/results");
+    } catch {
+      setError("Couldn't reach the server. Is the backend running?");
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -51,7 +80,11 @@ export default function SymptomCheckerPage() {
           <h1 className="mt-3 text-[28px] font-semibold text-[#173F29]">
             Symptom checker
           </h1>
-          
+          <p className="mt-2 text-[15px] text-[#5B5B5B]">
+            Describe how you&apos;re feeling in your own words. We&apos;ll give
+            you educational information and questions to bring to your
+            doctor visit.
+          </p>
         </div>
 
         <form

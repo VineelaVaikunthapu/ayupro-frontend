@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Python backend
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+backend/models/
+backend/chroma_db/
+backend/data/
+
+# Frontend (subfolder now, so these need explicit paths)
+frontend/node_modules/
+frontend/.next/

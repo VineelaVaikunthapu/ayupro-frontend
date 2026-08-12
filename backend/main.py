@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import bcrypt
 from pydantic import BaseModel, EmailStr
 
+from rag_engine import ask_medical_ai
+
 load_dotenv()
 
 app = FastAPI(title="AyuPro API")
@@ -52,6 +54,12 @@ class SignupRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+
+class SymptomCheckRequest(BaseModel):
+    age: int
+    gender: str
+    symptoms: str
 
 
 # --- Signup ---------------------------------------------------------------
@@ -140,3 +148,25 @@ def login(payload: LoginRequest):
         }
     finally:
         conn.close()
+
+
+# --- Symptom check --------------------------------------------------------
+
+@app.post("/api/symptom-check")
+def symptom_check(payload: SymptomCheckRequest):
+    # Fold age/gender into the query text so the retriever and LLM have
+    # that context too, alongside the raw symptom description.
+    query = (
+        f"Patient is {payload.age} years old, gender: {payload.gender}. "
+        f"Symptoms: {payload.symptoms}"
+    )
+
+    result = ask_medical_ai(query)
+
+    if "error" in result:
+        raise HTTPException(
+            status_code=502,
+            detail="The AI model didn't return a valid structured response. Please try again.",
+        )
+
+    return result
