@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "./AuthContext";
 
 const navLinks = [
   { label: "Conditions", href: "/conditions" },
@@ -19,6 +20,7 @@ const navLinks = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-30">
@@ -54,18 +56,37 @@ export default function Navbar() {
             </nav>
 
             <div className="hidden shrink-0 items-center gap-3 md:flex">
-              <Link
-                href="/login"
-                className="text-[15px] font-bold text-white transition-opacity hover:opacity-80"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="rounded-full bg-white px-4 py-2 text-[14px] font-bold text-[#3E63E8] transition-colors hover:bg-[#EEF2FC]"
-              >
-                Sign up
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/account/profile"
+                    className="text-[15px] font-bold text-white transition-opacity hover:opacity-80"
+                  >
+                    Hi, {user.firstName}
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="rounded-full bg-white px-4 py-2 text-[14px] font-bold text-[#3E63E8] transition-colors hover:bg-[#EEF2FC]"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-[15px] font-bold text-white transition-opacity hover:opacity-80"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="rounded-full bg-white px-4 py-2 text-[14px] font-bold text-[#3E63E8] transition-colors hover:bg-[#EEF2FC]"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
             </div>
 
             <button
@@ -107,20 +128,43 @@ export default function Navbar() {
             </Link>
           ))}
           <div className="mt-2 flex items-center gap-3 border-t border-white/20 pt-3">
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="text-[15px] font-bold text-white transition-opacity hover:opacity-80"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              onClick={() => setOpen(false)}
-              className="rounded-full bg-white px-4 py-2 text-[14px] font-bold text-[#3E63E8] transition-colors hover:bg-[#EEF2FC]"
-            >
-              Sign up
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/account/profile"
+                  onClick={() => setOpen(false)}
+                  className="text-[15px] font-bold text-white transition-opacity hover:opacity-80"
+                >
+                  Hi, {user.firstName}
+                </Link>
+                <button
+                  onClick={() => {
+                    logout();
+                    setOpen(false);
+                  }}
+                  className="rounded-full bg-white px-4 py-2 text-[14px] font-bold text-[#3E63E8] transition-colors hover:bg-[#EEF2FC]"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="text-[15px] font-bold text-white transition-opacity hover:opacity-80"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full bg-white px-4 py-2 text-[14px] font-bold text-[#3E63E8] transition-colors hover:bg-[#EEF2FC]"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
           </div>
         </nav>
       )}

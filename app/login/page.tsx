@@ -4,9 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "../../components/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
@@ -44,9 +46,9 @@ export default function LoginPage() {
         return;
       }
 
-      // TODO: store the returned user info in real auth state (context,
-      // cookie, or session token) once login sessions are implemented.
-      console.log("Logged in:", data, "remember:", remember);
+      // Update shared auth state so the navbar and rest of the app know
+      // someone is logged in.
+      login(data);
       router.push("/");
     } catch {
       setError("Couldn't reach the server. Is the backend running?");
