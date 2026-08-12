@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -43,10 +45,35 @@ export default function SignUpPage() {
     }
 
     setSubmitting(true);
-    // TODO: wire up to the backend signup endpoint once it exists.
-    // Expected shape roughly maps to: users (email, password) + user_profiles (first_name, last_name)
-    console.log("Sign up submitted:", form);
-    setTimeout(() => setSubmitting(false), 600);
+    try {
+      const response = await fetch("http://localhost:8000/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email,
+          phone: form.phone || null,
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.detail || "Something went wrong. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      // TODO: store the returned user info in real auth state (context,
+      // cookie, or session token) once login sessions are implemented.
+      console.log("Account created:", data);
+      router.push("/");
+    } catch {
+      setError("Couldn't reach the server. Is the backend running?");
+      setSubmitting(false);
+    }
   }
 
   return (

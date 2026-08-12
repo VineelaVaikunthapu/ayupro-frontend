@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
@@ -24,9 +26,32 @@ export default function LoginPage() {
     }
 
     setSubmitting(true);
-    // TODO: wire up to the backend login endpoint once it exists.
-    console.log("Log in submitted:", form, "remember:", remember);
-    setTimeout(() => setSubmitting(false), 600);
+    try {
+      const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.detail || "Invalid email or password.");
+        setSubmitting(false);
+        return;
+      }
+
+      // TODO: store the returned user info in real auth state (context,
+      // cookie, or session token) once login sessions are implemented.
+      console.log("Logged in:", data, "remember:", remember);
+      router.push("/");
+    } catch {
+      setError("Couldn't reach the server. Is the backend running?");
+      setSubmitting(false);
+    }
   }
 
   return (
