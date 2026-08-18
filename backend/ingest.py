@@ -2,6 +2,7 @@ import io
 import os
 import boto3
 from dotenv import load_dotenv
+from pypdf import PdfReader
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
