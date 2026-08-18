@@ -1,23 +1,31 @@
-import os
 import io
+import os
 import boto3
 from dotenv import load_dotenv
-from pypdf import PdfReader
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
+from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+import torch
 
 load_dotenv()
 
 DB_DIR = "./chroma_db"
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "your-medical-pdfs-bucket")
 
-print("⚡ Initializing embedding model...")
+# Automatically detect available hardware device (CUDA, MPS, or fallback to CPU)
+if torch.cuda.is_available():
+  device = "cuda"
+elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+  device = "mps"
+else:
+  device = "cpu"
+
+print(f"⚡ Initializing embedding model on device: {device}...")
 embeddings = HuggingFaceEmbeddings(
     model_name="BAAI/bge-base-en-v1.5",
-    model_kwargs={'device': 'mps'},
-    encode_kwargs={'normalize_embeddings': True}
+    model_kwargs={"device": device},
+    encode_kwargs={"normalize_embeddings": True},
 )
 
 # 1. Check if database already exists
