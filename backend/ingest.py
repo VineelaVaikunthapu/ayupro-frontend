@@ -93,7 +93,7 @@ try:
 
     # 5. Chunk the new documents
     print("🔪 Splitting new documents into text chunks...")
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
     chunks = text_splitter.split_documents(all_new_documents)
     print(f"🔪 Generated {len(chunks)} new text chunks.")
 

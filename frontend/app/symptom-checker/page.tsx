@@ -33,7 +33,7 @@ export default function SymptomCheckerPage() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/symptom-check", {
+      const response = await fetch("http://18.219.65.66:8000/api/symptom-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
